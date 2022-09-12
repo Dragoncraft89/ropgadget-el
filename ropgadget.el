@@ -41,12 +41,12 @@
 (define-key ropgadget-mode-map (kbd "n") #'next-line)
 (define-key ropgadget-mode-map (kbd "p") #'previous-line)
 
-(defface ropgadget-address '((t :foreground "blue")) "" :group 'ropgadget)
-(defface ropgadget-address-separator '((t :foreground "white")) "" :group 'ropgadget)
-(defface ropgadget-mnemonic '((t :foreground "red")) "" :group 'ropgadget)
-(defface ropgadget-argument '((t :foreground "green")) "" :group 'ropgadget)
-(defface ropgadget-argument-separator '((t :foreground "white")) "" :group 'ropgadget)
-(defface ropgadget-instruction-separator '((t :foreground "white")) "" :group 'ropgadget)
+(defface ropgadget-address '((t :foreground "blue")) "Face for display of addresses in ropgadget buffers." :group 'ropgadget)
+(defface ropgadget-address-separator '((t :foreground "white")) "Face for display of the separating ``:'' between addresses and the first instruction in ropgadget buffers." :group 'ropgadget)
+(defface ropgadget-mnemonic '((t :foreground "red")) "Face for display of instruction mnemonics in ropgadget buffers." :group 'ropgadget)
+(defface ropgadget-argument '((t :foreground "green")) "Face for display of instruction arguments in ropgadget buffers." :group 'ropgadget)
+(defface ropgadget-argument-separator '((t :foreground "white")) "Face for display of the separating ``,'' between instruction arguments in ropgadget buffers." :group 'ropgadget)
+(defface ropgadget-instruction-separator '((t :foreground "white")) "Face for display of the separating ``;'' between instructions in ropgadget buffers." :group 'ropgadget)
 
 (defcustom ropgadget-executable "ROPgadget"
   "Path to ROPgadget."
@@ -61,7 +61,7 @@
   mnemonic
   arguments)
 
-(defvar-local ropgadget-gadgets nil "The parsed gadgets for the binary")
+(defvar-local ropgadget-gadgets nil "The parsed gadgets for the binary.")
 
 
 (defun ropgadget--buffer-p ()
@@ -148,7 +148,7 @@ Use ``ropgadget-filter''"
 	(goto-char (point-min))))
 
 (transient-define-prefix ropgadget-filter ()
-  "Filter the gadgets in the current buffer. Interactive use only.
+  "Filter the gadgets in the current buffer.  Interactive use only.
 If you need to filter the gadgets from Elisp, consider passing a list of options in long format to ``ropgadget--filter''"
   ["Instructions"
    ("-i" "Mnemonic regex" "--instruction=")
