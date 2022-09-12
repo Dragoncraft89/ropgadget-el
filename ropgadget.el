@@ -1,4 +1,4 @@
-;;; ropgadget.el --- Display and filter ROP gadgets of a binary
+;;; ropgadget.el --- Display and filter ROP gadgets of a binary -*- lexical-binding: t -*-
 
 ;;; Copyright (C) 2021  Florian Kothmeier
 
@@ -85,16 +85,16 @@
 
 (defun ropgadget--format-instruction (instruction)
   "Format INSTRUCTION for display in the buffer."
-  (concat (propertize (instruction-mnemonic instruction) 'face 'ropgadget-mnemonic) " "
+  (concat (propertize (ropgadget-instruction-mnemonic instruction) 'face 'ropgadget-mnemonic) " "
 		  (mapconcat (lambda (arg) (propertize arg 'face 'ropgadget-argument))
-					 (instruction-arguments instruction)
+					 (ropgadget-instruction-arguments instruction)
 					 (propertize ", " 'face 'ropgadget-argument-separator))))
 
 (defun ropgadget--format-gadget (gadget)
   "Format GADGET for display in the buffer."
   (concat
-   (propertize (format "0x%016x" (gadget-address gadget)) 'face 'ropgadget-address) (propertize ": " 'face 'ropgadget-address-separator)
-   (mapconcat #'ropgadget--format-instruction (gadget-instructions gadget) (propertize " ; " 'face 'ropgadget-instruction-separator))))
+   (propertize (format "0x%016x" (ropgadget-gadget-address gadget)) 'face 'ropgadget-address) (propertize ": " 'face 'ropgadget-address-separator)
+   (mapconcat #'ropgadget--format-instruction (ropgadget-gadget-instructions gadget) (propertize " ; " 'face 'ropgadget-instruction-separator))))
 
 (defun ropgadget--filter-p (gadget &optional args)
   "Predicate to check whether GADGET should be filtered according to ARGS.
@@ -109,27 +109,27 @@ The ARGS are the same arguments that get passed to ``ropgadget--filter''"
 	   ((string-equal arg "--ret")
 		(setq type-match (or type-match
 							 (string-match-p "retf?"
-											 (instruction-mnemonic (car (last (gadget-instructions gadget))))))))
+											 (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
 	   ((string-equal arg "--syscall")
 		(setq type-match (or type-match
 							 (string-match-p "(syscall|int)"
-											 (instruction-mnemonic (car (last (gadget-instructions gadget))))))))
+											 (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
 	   ((string-equal arg "--jmp")
 		(setq type-match (or type-match
 							 (string-equal "jmp"
-										   (instruction-mnemonic (car (last (gadget-instructions gadget))))))))
+										   (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
 	   ((string-prefix-p "--instruction=" arg)
 		(setq instruction-match nil)
 		(let ((regex (substring arg 14)))
-		  (dolist (instruction (gadget-instructions gadget))
+		  (dolist (instruction (ropgadget-gadget-instructions gadget))
 			(setq instruction-match
 				  (or instruction-match
-					  (string-match-p regex (instruction-mnemonic instruction)))))))
+					  (string-match-p regex (ropgadget-instruction-mnemonic instruction)))))))
 	   ((string-prefix-p "--arg=" arg)
 		(setq arg-match nil)
 		(let ((regex (substring arg 6)))
-		  (dolist (instruction (gadget-instructions gadget))
-			(dolist (instruction-arg (instruction-arguments instruction))
+		  (dolist (instruction (ropgadget-gadget-instructions gadget))
+			(dolist (instruction-arg (ropgadget-instruction-arguments instruction))
 			  (setq arg-match
 					(or arg-match
 						(string-match-p regex instruction-arg)))))))))
