@@ -18,7 +18,7 @@
 ;;; Homepage: https://github.com/Dragoncraft89/ropgadget-el
 ;;; Keywords: tools ctf pwn rop
 
-;;; Package-Version: 1.0.0
+;;; Version: 1.0.0
 ;;; Package-Requires: ((emacs "24.4") (transient "0.3.6"))
 
 ;;; Commentary:
@@ -37,9 +37,13 @@
 
 ;;; Code:
 (define-derived-mode ropgadget-mode special-mode "ROPgadget")
-(define-key ropgadget-mode-map (kbd "f") #'ropgadget-filter)
-(define-key ropgadget-mode-map (kbd "n") #'next-line)
-(define-key ropgadget-mode-map (kbd "p") #'previous-line)
+
+(defvar ropgadget-mode-map
+  (let ((mode-map (make-sparse-keymap)))
+    (define-key mode-map (kbd "f") #'ropgadget-filter)
+    (define-key mode-map (kbd "n") #'next-line)
+    (define-key mode-map (kbd "p") #'previous-line)
+    mode-map))
 
 (defface ropgadget-address '((t :foreground "blue")) "Face for display of addresses in ropgadget buffers." :group 'ropgadget)
 (defface ropgadget-address-separator '((t :foreground "white")) "Face for display of the separating ``:'' between addresses and the first instruction in ropgadget buffers." :group 'ropgadget)
@@ -71,24 +75,24 @@
 (defun ropgadget--parse-instruction (instruction)
   "Parse INSTRUCTION from the ROPgadget output."
   (let* ((elements (split-string (substring instruction 1) " "))
-		 (mnemonic (car elements))
-		 (args (mapconcat #'identity (cdr elements) " "))
-		 (arglist (split-string args ",")))
-	(make-ropgadget-instruction :mnemonic mnemonic :arguments (mapcar #'string-trim arglist))))
+         (mnemonic (car elements))
+         (args (mapconcat #'identity (cdr elements) " "))
+         (arglist (split-string args ",")))
+    (make-ropgadget-instruction :mnemonic mnemonic :arguments (mapcar #'string-trim arglist))))
 
 (defun ropgadget--parse-gadget (line)
   "Parse ROPgadget's gadget format from LINE."
   (let* ((sides (split-string line ":"))
-		 (address (string-to-number (string-trim (substring (car sides) 2)) 16))
-		 (instructions (split-string (car (cdr sides)) ";")))
-	(make-ropgadget-gadget :address address :instructions (mapcar #'ropgadget--parse-instruction instructions))))
+         (address (string-to-number (string-trim (substring (car sides) 2)) 16))
+         (instructions (split-string (car (cdr sides)) ";")))
+    (make-ropgadget-gadget :address address :instructions (mapcar #'ropgadget--parse-instruction instructions))))
 
 (defun ropgadget--format-instruction (instruction)
   "Format INSTRUCTION for display in the buffer."
   (concat (propertize (ropgadget-instruction-mnemonic instruction) 'face 'ropgadget-mnemonic) " "
-		  (mapconcat (lambda (arg) (propertize arg 'face 'ropgadget-argument))
-					 (ropgadget-instruction-arguments instruction)
-					 (propertize ", " 'face 'ropgadget-argument-separator))))
+          (mapconcat (lambda (arg) (propertize arg 'face 'ropgadget-argument))
+                     (ropgadget-instruction-arguments instruction)
+                     (propertize ", " 'face 'ropgadget-argument-separator))))
 
 (defun ropgadget--format-gadget (gadget)
   "Format GADGET for display in the buffer."
@@ -102,50 +106,50 @@ Returns t if the gadget should be in the list of gadgets according to ARGS.
 
 The ARGS are the same arguments that get passed to ``ropgadget--filter''"
   (let ((type-match (not (or (member "--ret" args) (member "--syscall" args) (member "--jmp" args))))
-		(instruction-match t)
-		(arg-match t))
-	(dolist (arg args)
-	  (cond
-	   ((string-equal arg "--ret")
-		(setq type-match (or type-match
-							 (string-match-p "retf?"
-											 (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
-	   ((string-equal arg "--syscall")
-		(setq type-match (or type-match
-							 (string-match-p "(syscall|int)"
-											 (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
-	   ((string-equal arg "--jmp")
-		(setq type-match (or type-match
-							 (string-equal "jmp"
-										   (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
-	   ((string-prefix-p "--instruction=" arg)
-		(setq instruction-match nil)
-		(let ((regex (substring arg 14)))
-		  (dolist (instruction (ropgadget-gadget-instructions gadget))
-			(setq instruction-match
-				  (or instruction-match
-					  (string-match-p regex (ropgadget-instruction-mnemonic instruction)))))))
-	   ((string-prefix-p "--arg=" arg)
-		(setq arg-match nil)
-		(let ((regex (substring arg 6)))
-		  (dolist (instruction (ropgadget-gadget-instructions gadget))
-			(dolist (instruction-arg (ropgadget-instruction-arguments instruction))
-			  (setq arg-match
-					(or arg-match
-						(string-match-p regex instruction-arg)))))))))
-	(and type-match instruction-match arg-match)))
+        (instruction-match t)
+        (arg-match t))
+    (dolist (arg args)
+      (cond
+       ((string-equal arg "--ret")
+        (setq type-match (or type-match
+                             (string-match-p "retf?"
+                                             (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
+       ((string-equal arg "--syscall")
+        (setq type-match (or type-match
+                             (string-match-p "(syscall|int)"
+                                             (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
+       ((string-equal arg "--jmp")
+        (setq type-match (or type-match
+                             (string-equal "jmp"
+                                           (ropgadget-instruction-mnemonic (car (last (ropgadget-gadget-instructions gadget))))))))
+       ((string-prefix-p "--instruction=" arg)
+        (setq instruction-match nil)
+        (let ((regex (substring arg 14)))
+          (dolist (instruction (ropgadget-gadget-instructions gadget))
+            (setq instruction-match
+                  (or instruction-match
+                      (string-match-p regex (ropgadget-instruction-mnemonic instruction)))))))
+       ((string-prefix-p "--arg=" arg)
+        (setq arg-match nil)
+        (let ((regex (substring arg 6)))
+          (dolist (instruction (ropgadget-gadget-instructions gadget))
+            (dolist (instruction-arg (ropgadget-instruction-arguments instruction))
+              (setq arg-match
+                    (or arg-match
+                        (string-match-p regex instruction-arg)))))))))
+    (and type-match instruction-match arg-match)))
 
 (defun ropgadget--filter (&optional args)
   "Filters the gadgets according to the ARGS.
 Use ``ropgadget-filter''"
   (interactive (list (transient-args 'ropgadget-filter)))
   (when (ropgadget--buffer-p)
-	(let ((inhibit-read-only t))
-	  (delete-region (point-min) (point-max))
-	  (dolist (gadget ropgadget-gadgets)
-		(when (ropgadget--filter-p gadget args)
-		  (insert (ropgadget--format-gadget gadget) "\n"))))
-	(goto-char (point-min))))
+    (let ((inhibit-read-only t))
+      (delete-region (point-min) (point-max))
+      (dolist (gadget ropgadget-gadgets)
+        (when (ropgadget--filter-p gadget args)
+          (insert (ropgadget--format-gadget gadget) "\n"))))
+    (goto-char (point-min))))
 
 (transient-define-prefix ropgadget-filter ()
   "Filter the gadgets in the current buffer.  Interactive use only.
@@ -165,21 +169,21 @@ If you need to filter the gadgets from Elisp, consider passing a list of options
   (interactive "fBinary: ")
   (switch-to-buffer (format "ROPgadget<%s>" file))
   (let ((gadgets))
-	(with-temp-buffer
-	  (call-process ropgadget-executable nil (current-buffer) nil "--binary" file)
-	  (goto-char (point-min))
-	  (forward-line 2)
-	  (delete-region (point-min) (point))
-	  (goto-char (point-max))
-	  (forward-line -2)
-	  (delete-region (point) (point-max))
-	  (goto-char (point-min))
-	  (while (< (point) (point-max))
-		(let ((line (thing-at-point 'line)))
-		  (push (ropgadget--parse-gadget (string-trim line)) gadgets))
-		(forward-line)))
-	(ropgadget-mode)
-	(setq-local ropgadget-gadgets gadgets))
+    (with-temp-buffer
+      (call-process ropgadget-executable nil (current-buffer) nil "--binary" file)
+      (goto-char (point-min))
+      (forward-line 2)
+      (delete-region (point-min) (point))
+      (goto-char (point-max))
+      (forward-line -2)
+      (delete-region (point) (point-max))
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((line (thing-at-point 'line)))
+          (push (ropgadget--parse-gadget (string-trim line)) gadgets))
+        (forward-line)))
+    (ropgadget-mode)
+    (setq-local ropgadget-gadgets gadgets))
   (ropgadget--filter '("--ret" "--syscall" "-jmp")))
 
 (provide 'ropgadget)
