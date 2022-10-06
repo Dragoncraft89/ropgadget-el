@@ -1,36 +1,40 @@
 ;;; ropgadget.el --- Display and filter ROP gadgets of a binary -*- lexical-binding: t -*-
 
-;;; Copyright (C) 2021  Florian Kothmeier
+;; Homepage: https://github.com/Dragoncraft89/ropgadget-el
+;; Keywords: tools ctf pwn rop
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "24.4") (transient "0.3.6"))
+;; Copyright (C) 2021  Florian Kothmeier
 
-;;; This program is free software: you can redistribute it and/or modify
-;;; it under the terms of the GNU General Public License as published by
-;;; the Free Software Foundation, either version 3 of the License, or
-;;; (at your option) any later version.
-;;;
-;;; This program is distributed in the hope that it will be useful,
-;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;; GNU General Public License for more details.
-;;;
-;;; You should have received a copy of the GNU General Public License
-;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 
-;;; Homepage: https://github.com/Dragoncraft89/ropgadget-el
-;;; Keywords: tools ctf pwn rop
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 
-;;; Version: 1.0.0
-;;; Package-Requires: ((emacs "24.4") (transient "0.3.6"))
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;; ROPgadget is a well-known python utility for solving "pwn" challenges in IT-Security competitions (CTFs).
-;;; The tool searches for so-called gadgets, which are short function fragments that end with a return/syscall/jump instruction.
-;;; They are generally used to obtain arbitrary code execution by overwriting return addresses on the stack with suitable gadgets.
-;;; This Elisp package uses the ROPgadget utility to find these gadgets and merely displays these in a Emacs friendly way.
-;;; You need to have the ROPgadget tool installed and in your PATH
-;;; If you do not have the utility in your PATH, you can set the location via the variable ``ropgadget-executable''
-;;;
-;;; To find gadgets in a binary, run M-x ropgadget
-;;; Inside a ROPgadget buffer, you can filter the displayed gadgets by pressing ``f'' or M-x ropgadget-filter
+
+;; ROPgadget is a well-known python utility for solving "pwn" challenges in
+;; IT-Security competitions (CTFs).  The tool searches for so-called gadgets,
+;; which are short function fragments that end with a return/syscall/jump
+;; instruction.  They are generally used to obtain arbitrary code execution by
+;; overwriting return addresses on the stack with suitable gadgets.  This Elisp
+;; package uses the ROPgadget utility to find these gadgets and merely displays
+;; these in a Emacs friendly way.  You need to have the ROPgadget tool installed
+;; and in your PATH If you do not have the utility in your PATH, you can set the
+;; location via the variable `ropgadget-executable'.
+
+;; To find gadgets in a binary, run M-x ropgadget.
+
+;; Inside a ROPgadget buffer, you can filter the displayed gadgets by pressing
+;; ``f'' or M-x ropgadget-filter
 
 (require 'cl-lib)
 (require 'transient)
