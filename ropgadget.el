@@ -36,7 +36,7 @@
 ;; Inside a ROPgadget buffer, you can filter the displayed gadgets by pressing
 ;; ``f'' or M-x ropgadget-filter
 
-(require 'cl-lib)
+(eval-when-compile (require 'cl-lib))
 (require 'transient)
 
 ;;; Code:
