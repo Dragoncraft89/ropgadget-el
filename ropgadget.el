@@ -40,14 +40,14 @@
 (require 'transient)
 
 ;;; Code:
-(define-derived-mode ropgadget-mode special-mode "ROPgadget")
-
 (defvar ropgadget-mode-map
   (let ((mode-map (make-sparse-keymap)))
     (define-key mode-map (kbd "f") #'ropgadget-filter)
     (define-key mode-map (kbd "n") #'next-line)
     (define-key mode-map (kbd "p") #'previous-line)
     mode-map))
+
+(define-derived-mode ropgadget-mode special-mode "ROPgadget")
 
 (defface ropgadget-address '((t :foreground "blue")) "Face for display of addresses in ropgadget buffers." :group 'ropgadget)
 (defface ropgadget-address-separator '((t :foreground "white")) "Face for display of the separating ``:'' between addresses and the first instruction in ropgadget buffers." :group 'ropgadget)
